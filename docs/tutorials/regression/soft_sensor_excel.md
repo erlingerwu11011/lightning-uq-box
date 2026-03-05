@@ -2,6 +2,15 @@
 
 如果你的软测量数据保存在 Excel，且前 5 列为输入、最后 1 列为输出，可以直接用 `TabularRegressionDataModule`。
 
+如果你已经先读取了 DataFrame（例如你提到的这行）：
+
+```python
+import pandas as pd
+df = pd.read_excel(r"C:\Users\13377\Desktop\test1.xlsx")
+```
+
+也可以直接把 `df` 传给数据模块，不必再传 `data_path`。
+
 ## 1) 准备数据模块（真正的代码改动已在库内提供）
 
 ```python
@@ -12,6 +21,20 @@ dm = TabularRegressionDataModule(
     data_path=r"C:\Users\13377\Desktop\test1.xlsx",
     n_input_features=5,   # 前5列输入
     target_column=-1,     # 最后一列输出
+    batch_size=64,
+    val_size=0.15,
+    test_size=0.15,
+    random_state=42,
+)
+```
+
+### 可选：直接使用 DataFrame
+
+```python
+dm = TabularRegressionDataModule(
+    dataframe=df,
+    n_input_features=5,
+    target_column=-1,
     batch_size=64,
     val_size=0.15,
     test_size=0.15,

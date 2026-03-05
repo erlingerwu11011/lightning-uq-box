@@ -26,7 +26,8 @@ class TabularRegressionDataModule(LightningDataModule):
 
     def __init__(
         self,
-        data_path: str | Path,
+        data_path: str | Path | None = None,
+        dataframe: pd.DataFrame | None = None,
         n_input_features: int = 5,
         target_column: str | int = -1,
         test_size: float = 0.15,
@@ -41,6 +42,7 @@ class TabularRegressionDataModule(LightningDataModule):
 
         Args:
             data_path: path to source data file (.xlsx/.xls/.csv).
+            dataframe: in-memory dataframe source, e.g. loaded via ``pd.read_excel``.
             n_input_features: number of leading columns used as input features.
             target_column: target column selector, either column name or index.
             test_size: test split ratio out of full data.
@@ -53,7 +55,13 @@ class TabularRegressionDataModule(LightningDataModule):
         """
         super().__init__()
 
-        self.data_path = Path(data_path)
+        if data_path is None and dataframe is None:
+            raise ValueError("Provide either `data_path` or `dataframe`.")
+        if data_path is not None and dataframe is not None:
+            raise ValueError("Use either `data_path` or `dataframe`, not both.")
+
+        self.data_path = Path(data_path) if data_path is not None else None
+        self.dataframe = dataframe
         self.n_input_features = n_input_features
         self.target_column = target_column
         self.test_size = test_size
@@ -147,6 +155,12 @@ class TabularRegressionDataModule(LightningDataModule):
         )
 
     def _load_dataframe(self) -> pd.DataFrame:
+        if self.dataframe is not None:
+            return self.dataframe.copy()
+
+        if self.data_path is None:
+            raise ValueError("`data_path` is required when `dataframe` is not provided.")
+
         suffix = self.data_path.suffix.lower()
         if suffix in {".xlsx", ".xls"}:
             return pd.read_excel(self.data_path, sheet_name=self.sheet_name)
