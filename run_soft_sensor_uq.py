@@ -137,8 +137,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--data-path",
         type=str,
-        default=r"C:\Users\13377\Desktop\test1.xlsx",
-        help="Excel path, default is the path provided by user.",
+        required=True,
+        help="Path to your real Excel file, e.g. C:/Users/13377/Desktop/test1.xlsx",
     )
     parser.add_argument(
         "--method",
@@ -156,8 +156,12 @@ def parse_args() -> argparse.Namespace:
 def main() -> None:
     args = parse_args()
 
-    # User-requested loading style
-    df = pd.read_excel(args.data_path)
+    data_path = Path(args.data_path)
+    if not data_path.exists():
+        raise FileNotFoundError(f"Excel file not found: {data_path}")
+
+    # Always use the user-provided real file path (no synthetic fallback)
+    df = pd.read_excel(data_path)
     dm = build_datamodule(df=df, batch_size=args.batch_size)
 
     if args.method == "mc_dropout":

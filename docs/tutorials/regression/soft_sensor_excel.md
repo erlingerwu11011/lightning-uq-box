@@ -14,6 +14,8 @@ df = pd.read_excel(r"C:\Users\13377\Desktop\test1.xlsx")
 
 > 这 3 个只是**示例**，不是只能用这 3 个。`lightning-uq-box` 里还有很多回归 UQ 方法（如 `LaplaceRegression`、`SNGPRegression`、`CARDRegression`、`SWAGRegression` 等），只是为了给你一个最容易直接跑通的起点，这里先放了最常见的三种。
 
+> 脚本只会读取你通过 `--data-path` 传入的真实 Excel 文件，不会使用任何合成数据集。
+
 ## 1) 直接使用仓库内脚本 `run_soft_sensor_uq.py`
 
 ```python
@@ -215,19 +217,19 @@ pip install pandas openpyxl
 ### Step B. 运行 MC Dropout
 
 ```bash
-python run_soft_sensor_uq.py --method mc_dropout --max-epochs 120
+python run_soft_sensor_uq.py --data-path "C:/Users/13377/Desktop/test1.xlsx" --method mc_dropout --max-epochs 120
 ```
 
 ### Step C. 运行 Quantile Regression
 
 ```bash
-python run_soft_sensor_uq.py --method quantile --max-epochs 120
+python run_soft_sensor_uq.py --data-path "C:/Users/13377/Desktop/test1.xlsx" --method quantile --max-epochs 120
 ```
 
 ### Step D. 运行 Deep Ensemble
 
 ```bash
-python run_soft_sensor_uq.py --method deep_ensemble --max-epochs 80 --n-ensembles 3
+python run_soft_sensor_uq.py --data-path "C:/Users/13377/Desktop/test1.xlsx" --method deep_ensemble --max-epochs 80 --n-ensembles 3
 ```
 
 ## 4) 在哪改不同的 UQ 方法（最关键）
