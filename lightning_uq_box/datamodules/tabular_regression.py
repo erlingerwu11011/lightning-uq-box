@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Optional, Union
 
 import pandas as pd
 import torch
@@ -26,17 +27,17 @@ class TabularRegressionDataModule(LightningDataModule):
 
     def __init__(
         self,
-        data_path: str | Path | None = None,
-        dataframe: pd.DataFrame | None = None,
+        data_path: Optional[Union[str, Path]] = None,
+        dataframe: Optional[pd.DataFrame] = None,
         n_input_features: int = 5,
-        target_column: str | int = -1,
+        target_column: Union[str, int] = -1,
         test_size: float = 0.15,
         val_size: float = 0.15,
         random_state: int = 42,
         batch_size: int = 64,
         scale_inputs: bool = True,
         scale_target: bool = True,
-        sheet_name: str | int = 0,
+        sheet_name: Union[str, int] = 0,
     ) -> None:
         """Initialize datamodule from CSV or Excel data source.
 
@@ -75,7 +76,7 @@ class TabularRegressionDataModule(LightningDataModule):
         self.x_scaler = StandardScaler()
         self.y_scaler = StandardScaler()
 
-    def setup(self, stage: str | None = None) -> None:
+    def setup(self, stage: Optional[str] = None) -> None:
         """Prepare train/val/test datasets."""
         del stage
 

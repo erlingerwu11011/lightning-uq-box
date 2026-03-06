@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 from functools import partial
 from pathlib import Path
+from typing import Dict, List, Union
 
 import numpy as np
 import pandas as pd
@@ -36,7 +37,7 @@ def build_datamodule(df: pd.DataFrame, batch_size: int) -> TabularRegressionData
 
 def train_and_predict_mc_dropout(
     dm: TabularRegressionDataModule, max_epochs: int
-) -> list[dict[str, torch.Tensor]]:
+) -> List[Dict[str, torch.Tensor]]:
     model = MLP(n_inputs=5, n_hidden=[64, 64], n_outputs=1, dropout_p=0.1)
     uq_model = MCDropoutRegression(
         model=model,
@@ -58,7 +59,7 @@ def train_and_predict_mc_dropout(
 
 def train_and_predict_quantile(
     dm: TabularRegressionDataModule, max_epochs: int
-) -> list[dict[str, torch.Tensor]]:
+) -> List[Dict[str, torch.Tensor]]:
     quantiles = [0.1, 0.5, 0.9]
     model = MLP(
         n_inputs=5,
@@ -86,8 +87,8 @@ def train_and_predict_deep_ensemble(
     dm: TabularRegressionDataModule,
     max_epochs: int,
     n_ensembles: int,
-) -> list[dict[str, torch.Tensor]]:
-    trained_members: list[dict[str, str | MVERegression]] = []
+) -> List[Dict[str, torch.Tensor]]:
+    trained_members: List[Dict[str, Union[str, MVERegression]]] = []
 
     for i in range(n_ensembles):
         base_model = MLP(n_inputs=5, n_hidden=[64, 64], n_outputs=2, dropout_p=0.0)
@@ -117,7 +118,7 @@ def train_and_predict_deep_ensemble(
 
 
 def summarize_predictions(
-    pred_batches: list[dict[str, torch.Tensor]], dm: TabularRegressionDataModule
+    pred_batches: List[Dict[str, torch.Tensor]], dm: TabularRegressionDataModule
 ) -> None:
     pred_mean = np.concatenate([batch["pred"].detach().cpu().numpy() for batch in pred_batches])
     pred_uct = np.concatenate(
