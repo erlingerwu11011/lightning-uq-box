@@ -14,6 +14,7 @@ from .toy_image_regression import ToyImageRegressionDatamodule
 from .toy_image_segmentation import ToySegmentationDataModule
 from .toy_pixelwise_regression import ToyPixelwiseRegressionDataModule
 from .toy_sine import ToySineDatamodule
+from .tabular_regression import TabularRegressionDataModule
 
 __all__ = (
     # toy datamodules
@@ -29,4 +30,5 @@ __all__ = (
     "ToyGaussianSideWaysDataModule",
     "ToyDonutDataModule",
     "ToyPixelwiseRegressionDataModule",
+    "TabularRegressionDataModule",
 )

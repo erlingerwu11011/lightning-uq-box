@@ -5,14 +5,16 @@
 
 import copy
 import os
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import torch
-from laplace import Laplace
 from torch import Tensor
 from tqdm import trange
 
 from lightning_uq_box.uq_methods import BaseModule
+
+if TYPE_CHECKING:
+    from laplace import Laplace
 
 from .utils import (
     _get_num_inputs,
@@ -28,7 +30,7 @@ from .utils import (
 
 
 def tune_prior_precision_and_sigma(
-    model: Laplace,
+    model: "Laplace",
     tune_precision_lr: float,
     n_epochs_tune_precision: int,
     tune_prior_precision: bool,
@@ -84,7 +86,7 @@ class LaplaceBase(BaseModule):
 
     def __init__(
         self,
-        laplace_model: Laplace,
+        laplace_model: "Laplace",
         pred_type: str = "glm",
         link_approx: str = "probit",
         num_samples: int | None = None,
@@ -247,7 +249,7 @@ class LaplaceRegression(LaplaceBase):
 
     def __init__(
         self,
-        laplace_model: Laplace,
+        laplace_model: "Laplace",
         pred_type: str = "glm",
         link_approx: str = "probit",
         num_samples: int | None = None,
@@ -399,7 +401,7 @@ class LaplaceClassification(LaplaceBase):
 
     def __init__(
         self,
-        laplace_model: Laplace,
+        laplace_model: "Laplace",
         task: str = "multiclass",
         pred_type: str = "glm",
         link_approx: str = "probit",
