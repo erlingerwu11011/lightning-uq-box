@@ -213,14 +213,53 @@ python run_soft_sensor_uq.py --method quantile --max-epochs 120
 python run_soft_sensor_uq.py --method deep_ensemble --max-epochs 80 --n-ensembles 3
 ```
 
-## 3) 关键参数说明
+## 3) 在哪改不同的 UQ 方法（最关键）
+
+你主要改下面 **3 个位置**：
+
+1. **导入区**：在 `from lightning_uq_box.uq_methods import (...)` 里添加你要的方法类；
+2. **参数解析区**：在 `choices=["mc_dropout", "quantile", "deep_ensemble"]` 里加入新方法名；
+3. **分支调度区**：在 `if args.method == ...` 下面加一个 `elif`，调用你新写的 `train_and_predict_xxx(...)`。
+
+最小示例（加入 `laplace` 开关）：
+
+```python
+# ① 导入
+from lightning_uq_box.uq_methods import LaplaceRegression
+
+# ② argparse choices 增加 "laplace"
+parser.add_argument(
+    "--method",
+    type=str,
+    default="mc_dropout",
+    choices=["mc_dropout", "quantile", "deep_ensemble", "laplace"],
+)
+
+# ③ 在分支里加 elif
+if args.method == "mc_dropout":
+    pred_batches = train_and_predict_mc_dropout(dm, max_epochs=args.max_epochs)
+elif args.method == "quantile":
+    pred_batches = train_and_predict_quantile(dm, max_epochs=args.max_epochs)
+elif args.method == "deep_ensemble":
+    pred_batches = train_and_predict_deep_ensemble(
+        dm,
+        max_epochs=args.max_epochs,
+        n_ensembles=args.n_ensembles,
+    )
+elif args.method == "laplace":
+    pred_batches = train_and_predict_laplace(dm, max_epochs=args.max_epochs)
+```
+
+> 也就是说：**不是在 datamodule 里改**，而是在运行脚本里的“导入 + `--method` + `if/elif` 路由”这三处改。
+
+## 4) 关键参数说明
 
 - `n_input_features=5`：前 5 列作为输入。
 - `target_column=-1`：最后一列作为输出。
 - `--method`：切换 UQ 方法（`mc_dropout` / `quantile` / `deep_ensemble`）。
 - `--max-epochs`：训练轮数；你可先用小一点（如 30）检查流程，再增大。
 
-## 4) 不止这 3 种：如何扩展到其他 UQ 方法
+## 5) 不止这 3 种：如何扩展到其他 UQ 方法
 
 不是只能切换 `mc_dropout`、`quantile`、`deep_ensemble`。上面的脚本是为了“你现在就能在 `test1.xlsx` 跑起来”而给的最小完整版本。
 
@@ -246,7 +285,7 @@ from lightning_uq_box.uq_methods import LaplaceRegression
 - 想做后验近似：`LaplaceRegression`
 - 想结合 GP 风格头部：`SNGPRegression`
 
-## 5) 常见问题
+## 6) 常见问题
 
 - 如果报 `ModuleNotFoundError: openpyxl`：执行 `pip install openpyxl`。
 - 如果你的输出列不是最后一列：把 `target_column=-1` 改成列名（例如 `"y"`）或者目标列索引。
