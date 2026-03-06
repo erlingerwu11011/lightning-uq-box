@@ -12,8 +12,8 @@ from lightning_uq_box.datamodules import TabularRegressionDataModule
 
 
 @pytest.fixture()
-def toy_dataframe() -> pd.DataFrame:
-    """Create a toy soft-sensor dataset with 5 inputs and 1 output."""
+def sample_dataframe() -> pd.DataFrame:
+    """Create a small in-test sample dataset with 5 inputs and 1 output."""
     data = {
         "x1": [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0],
         "x2": [0.1, 0.2, 0.1, 0.2, 0.1, 0.2, 0.1, 0.2, 0.1, 0.2],
@@ -26,15 +26,15 @@ def toy_dataframe() -> pd.DataFrame:
 
 
 @pytest.fixture()
-def toy_csv(tmp_path: Path, toy_dataframe: pd.DataFrame) -> Path:
-    path = tmp_path / "toy_soft_sensor.csv"
-    toy_dataframe.to_csv(path, index=False)
+def sample_csv(tmp_path: Path, sample_dataframe: pd.DataFrame) -> Path:
+    path = tmp_path / "sample_soft_sensor.csv"
+    sample_dataframe.to_csv(path, index=False)
     return path
 
 
-def test_tabular_regression_datamodule_setup(toy_csv: Path) -> None:
+def test_tabular_regression_datamodule_setup(sample_csv: Path) -> None:
     dm = TabularRegressionDataModule(
-        data_path=toy_csv,
+        data_path=sample_csv,
         n_input_features=5,
         target_column=-1,
         val_size=0.2,
@@ -52,9 +52,9 @@ def test_tabular_regression_datamodule_setup(toy_csv: Path) -> None:
     assert batch["target"].shape[-1] == 1
 
 
-def test_invalid_split_ratio_raises(toy_csv: Path) -> None:
+def test_invalid_split_ratio_raises(sample_csv: Path) -> None:
     dm = TabularRegressionDataModule(
-        data_path=toy_csv,
+        data_path=sample_csv,
         val_size=0.5,
         test_size=0.5,
     )
@@ -64,10 +64,10 @@ def test_invalid_split_ratio_raises(toy_csv: Path) -> None:
 
 
 def test_tabular_regression_datamodule_from_dataframe(
-    toy_dataframe: pd.DataFrame,
+    sample_dataframe: pd.DataFrame,
 ) -> None:
     dm = TabularRegressionDataModule(
-        dataframe=toy_dataframe,
+        dataframe=sample_dataframe,
         n_input_features=5,
         target_column=-1,
         val_size=0.2,
